@@ -246,6 +246,25 @@ def higuchi_fd(x, kmax=10):
 
     Notes
     -----
+    For each interval :math:`k` from 1 to ``kmax``, :math:`k` sub-series are
+    constructed from the signal :math:`x` of length :math:`N`. Letting
+    :math:`N_m = \\lfloor (N-m)/k \\rfloor`, the normalised length for each
+    sub-series starting at :math:`m` is:
+
+    .. math::
+
+        L_m(k) = \\frac{N-1}{k^2 \\cdot N_m}
+        \\sum_{j=1}^{N_m - 1} |x_{m+jk} - x_{m+(j-1)k}|
+
+    and the average length across all :math:`k` sub-series is:
+
+    .. math:: L(k) = \\frac{1}{k} \\sum_{m=1}^{k} L_m(k)
+
+    The fractal dimension is then estimated as the slope of the linear
+    regression of :math:`\\log L(k)` against :math:`\\log(1/k)`:
+
+    .. math:: \\text{FD} = \\frac{d \\log L(k)}{d \\log(1/k)}
+
     Original code from the `mne-features <https://mne.tools/mne-features/>`_
     package by Jean-Baptiste Schiratti and Alexandre Gramfort.
 
@@ -256,6 +275,13 @@ def higuchi_fd(x, kmax=10):
     Higuchi, Tomoyuki. "Approach to an irregular time series on the
     basis of the fractal theory." Physica D: Nonlinear Phenomena 31.2
     (1988): 277-283.
+
+    Esteller, R. et al. (2001). A comparison of waveform fractal dimension
+    algorithms. IEEE Transactions on Circuits and Systems I: Fundamental
+    Theory and Applications, 48(2), 177-183.
+
+    Paivinen, N. et al. (2005). Epileptic seizure detection: A nonlinear
+    viewpoint. Computer methods and programs in biomedicine, 79(2), 151-159.
 
     Examples
     --------
@@ -352,14 +378,14 @@ def detrended_fluctuation(x):
     Returns
     -------
     alpha : float
-        the estimate alpha (:math:`\\alpha`) for the Hurst parameter.
+        The estimated scaling exponent :math:`\\alpha` (related to the Hurst
+        parameter).
 
-        :math:`\\alpha < 1`` indicates a
-        stationary process similar to fractional Gaussian noise with
-        :math:`H = \\alpha`.
+        :math:`\\alpha < 1` indicates a stationary process similar to
+        fractional Gaussian noise with :math:`H = \\alpha`.
 
-        :math:`\\alpha > 1`` indicates a non-stationary process similar to
-        fractional Brownian motion with :math:`H = \\alpha - 1`
+        :math:`\\alpha > 1` indicates a non-stationary process similar to
+        fractional Brownian motion with :math:`H = \\alpha - 1`.
 
     Notes
     -----
@@ -377,16 +403,16 @@ def detrended_fluctuation(x):
     where :math:`\\text{std}(X, k)` is the standard deviation of the process
     :math:`X` calculated over windows of size :math:`k`. In this equation,
     :math:`H` is called the Hurst parameter, which behaves indeed very similar
-    to the Hurst exponant.
+    to the Hurst exponent.
 
     For more details, please refer to the excellent documentation of the
     `nolds <https://cschoel.github.io/nolds/>`_
     Python package by Christopher Scholzel, from which this function is taken:
     https://cschoel.github.io/nolds/nolds.html#detrended-fluctuation-analysis
 
-    Note that the default subseries size is set to
-    entropy.utils._log_n(4, 0.1 * len(x), 1.2)). The current implementation
-    does not allow to manually specify the subseries size or use overlapping
+    Note that the subseries sizes range from 4 to 10% of the signal length,
+    spaced geometrically by a factor of 1.2. The current implementation does
+    not allow to manually specify the subseries sizes or use overlapping
     windows.
 
     The code is a faster (Numba) adaptation of the original code by Christopher
