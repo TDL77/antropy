@@ -3,6 +3,43 @@
 What's new
 ##########
 
+v0.2.0 (March 2026)
+--------------------
+
+**Build & CI**
+
+- Drop Python 3.9 (EOL), add Python 3.13 support. Minimum is now Python 3.10.
+- Switch from ``pip`` to ``uv`` in all GitHub Actions workflows.
+- Add explicit minimum versions for core dependencies: ``numpy>=1.22.4``, ``scipy>=1.8.0``, ``scikit-learn>=1.2.0``.
+- Migrate ``[project.optional-dependencies]`` to PEP 735 ``[dependency-groups]``.
+- Bump ``setuptools>=80.0``.
+- Split CI into three jobs: ``test-core`` (3 platforms × 4 Python versions), ``test-dependency-combinations`` (4 dep combos from minimum to latest), and ``coverage``.
+- Fix ``test-dependency-combinations`` job: separate antropy install (``--no-deps``) from test-dependency install so that pytest's own dependencies (e.g. ``pluggy``) are always resolved.
+- Fix Codecov upload to use ``${{ secrets.CODECOV_TOKEN }}`` instead of a hardcoded token.
+- Switch Ruff workflow from ``astral-sh/ruff-action@v1`` to ``uvx ruff`` via ``astral-sh/setup-uv@v7``.
+- Extend Ruff rules: add ``W`` (pycodestyle warnings) and ``NPY`` (NumPy rules).
+
+**Tests**
+
+- Increase test coverage from ~54 % to 100 %.
+- Add ``tests/test_utils.py`` covering all branches of the ``_embed`` helper (1-D and 2-D paths, all error conditions).
+- Add edge-case tests: ``sample_entropy`` returning ``inf`` (m-length matches exist but no (m+1)-length matches); ``detrended_fluctuation`` returning ``NaN`` for a constant signal; ``spectral_entropy`` raising on an invalid method string.
+- Set ``NUMBA_DISABLE_JIT=1`` in the ``coverage`` CI job so coverage.py can instrument Numba JIT function bodies; other CI jobs still exercise real compiled code.
+
+**Bug fixes**
+
+- Fix :py:func:`antropy.higuchi_fd` returning a ``ValueError`` (``math domain error``) on constant or integer-typed input arrays: ``log(0)`` is now guarded to return ``-inf``, matching Numba's IEEE 754 behaviour.
+
+**Docs**
+
+- Switch documentation theme from ``sphinx_bootstrap_theme`` to ``pydata-sphinx-theme`` (dark/light toggle, GitHub icon, improved layout).
+- Fix three broken ``intersphinx`` URLs: NumPy, SciPy, and MNE-Python.
+- Add ``sphinx.ext.mathjax`` for LaTeX math rendering in docstrings.
+- Add ``contributing.rst`` guide.
+- Fix stale ``:py:func:`` cross-references in changelog entries v0.1.1–v0.1.3 (``entropy.XXX`` → ``antropy.XXX``).
+- Fix typo in v0.1.6 changelog ("Fox for KDTree" → "Fix for KDTree").
+- Modernize ``README.rst`` and ``docs/index.rst``: add PyPI, conda-forge, downloads, and Ruff badges; add ``uv`` installation instructions; fix broken links.
+
 v0.1.9 (February 2025)
 ----------------------
 
@@ -28,7 +65,7 @@ This version requires numba >= 0.57.
 
 a. Allow readonly arrays in numba jit signature. https://github.com/raphaelvallat/antropy/pull/23
 b. Improved sample entropy kernel. https://github.com/raphaelvallat/antropy/pull/25
-c. Fox for KDTree.valid_metrics which is method since sklearn 1.3. https://github.com/raphaelvallat/antropy/pull/30
+c. Fix for KDTree.valid_metrics which is method since sklearn 1.3. https://github.com/raphaelvallat/antropy/pull/30
 
 v0.1.5 (December 2022)
 ----------------------
@@ -47,22 +84,22 @@ a. Faster implementation of :py:func:`antropy.lziv_complexity` (see `PR1 <https:
 v0.1.3 (March 2021)
 -------------------
 
-a. Added the :py:func:`entropy.num_zerocross` function to calculate the (normalized) number of zero-crossings on N-D data.
-b. Added the :py:func:`entropy.hjorth_params` function to calculate the mobility and complexity Hjorth parameters on N-D data.
-c. Add support for N-D data in :py:func:`entropy.spectral_entropy`, :py:func:`entropy.petrosian_fd` and :py:func:`entropy.katz_fd`.
+a. Added the :py:func:`antropy.num_zerocross` function to calculate the (normalized) number of zero-crossings on N-D data.
+b. Added the :py:func:`antropy.hjorth_params` function to calculate the mobility and complexity Hjorth parameters on N-D data.
+c. Add support for N-D data in :py:func:`antropy.spectral_entropy`, :py:func:`antropy.petrosian_fd` and :py:func:`antropy.katz_fd`.
 d. Use the `stochastic <https://github.com/crflynn/stochastic>`_ package to generate stochastic time-series.
 
 v0.1.2 (May 2020)
 -----------------
 
-a. :py:func:`entropy.lziv_complexity` now works with non-binary sequence (e.g. "12345" or "Hello World!")
-b. The average fluctuations in :py:func:`entropy.detrended_fluctuation` is now calculated using the root mean square instead of a simple arithmetic. For more details, please refer to `this GitHub issue <https://github.com/neuropsychology/NeuroKit/issues/206>`_.
+a. :py:func:`antropy.lziv_complexity` now works with non-binary sequence (e.g. "12345" or "Hello World!")
+b. The average fluctuations in :py:func:`antropy.detrended_fluctuation` is now calculated using the root mean square instead of a simple arithmetic. For more details, please refer to `this GitHub issue <https://github.com/neuropsychology/NeuroKit/issues/206>`_.
 c. Updated flake8
 
 v0.1.1 (November 2019)
 ----------------------
 
-a. Added Lempel-Ziv complexity (:py:func:`entropy.lziv_complexity`) for binary sequence.
+a. Added Lempel-Ziv complexity (:py:func:`antropy.lziv_complexity`) for binary sequence.
 
 v0.1.0 (October 2018)
 ---------------------
